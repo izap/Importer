@@ -1,0 +1,10 @@
+# Operating System
+*.swp
+
+# IDEs
+/.idea/
+
+# Composer
+/composer.phar
+/composer.lock
+/vendor/
