@@ -17,8 +17,14 @@
         }
     ],
     "require": {
-      "php": ">=5.3.2",
+      "php": ">=5.3.2"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/izap/importer.git"
+        }
+    ],
     "suggest": {
       "ext-curl": "PHP Curl",
       "ext-pthreads": "Workers ( PHP compile configuration)",
