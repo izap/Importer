@@ -4,9 +4,9 @@
     "type": "library",
     "license": "GPL-3.0+",
     "keywords": ["csv", "sqlite", "redis"],
-    "homepage": "http://github.com/izap/importer",
+    "homepage": "http://github.com/izap/Importer",
     "support": {
-        "issues": "https://github.com/izap/importer/issues"
+        "issues": "https://github.com/izap/Importer/issues"
     },
     "authors": [
         {
@@ -19,12 +19,6 @@
     "require": {
       "php": ">=5.3.2"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/izap/importer.git"
-        }
-    ],
     "suggest": {
       "ext-curl": "PHP Curl",
       "ext-pthreads": "Workers ( PHP compile configuration)",
