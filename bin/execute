@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+if (PHP_SAPI != 'cli') { exit; }
+ini_set('memory_limit', '4000M');
+
+//error_reporting('E_ALL & ~E_NOTICE');
+date_default_timezone_set('UTC');
+
+
+require __DIR__ . "/../vendor/autoload.php";
+
+$options = getopt("d:w:h:");
+
+$config = new \Importer\Config(json_decode($options['d'], true));
+$reader = '\\Importer\\Reader\\'.ucfirst($config->reader['driver']);
+
+$reader_object = new $reader($config);
+
+
+$rows = $reader_object->records();
+
+$writer = new \Importer\Writer\Sqlite($config);
+
+print_r($writer->update($rows));
+
