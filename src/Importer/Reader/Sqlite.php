@@ -2,7 +2,7 @@
 
 namespace Importer\Reader;
 
-class Spreadsheet extends Source {
+class Sqlite extends Source {
   private $_header = array();
   private $_rows = array();
 
