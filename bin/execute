@@ -12,6 +12,14 @@ require __DIR__ . "/../vendor/autoload.php";
 $options = getopt("d:h:");
 
 $config = new \Importer\Config(json_decode($options['d'], true));
+if($config->setup == 'yes'){
+  $new_workarea = $config->setup();
+  echo "Setup completed at workarea: $new_workarea.\n";
+  exit;
+}else {
+  $config->process();
+}
+
 $reader = '\\Importer\\Reader\\'.ucfirst($config->reader['driver']);
 
 $reader_object = new $reader($config);
