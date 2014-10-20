@@ -20,10 +20,11 @@ class Sqlite extends Destination {
 
     $header = true;
     foreach ($records as $row_index => $row){
+      if($row_index === 0 ) {continue;}
       foreach ($row as $rkey => $cell) {
         //skip columns which you do not want to be in update process.
         if (in_array($rkey, $this->config->skip_columns) || empty($rkey)){ continue; }
-        $update_columns[] = "'".$dbObject->escapeString($cell)."'";
+        $update_columns[] = "'".trim($dbObject->escapeString($cell))."'";
         if($header){
           $header_array[]=$rkey;
         }
@@ -32,6 +33,12 @@ class Sqlite extends Destination {
 
       //todo: put exception keyfield is important
       $build_command .= sprintf($insert_command, implode(", ", $header_array) ,  implode(", ", $update_columns));
+
+
+      if(isset($this->config->debug) && $this->config->debug == 'yes'){
+        echo $build_command;
+        return true;
+      }
       $update_columns= array();
     }
     return $dbObject->exec($build_command);
@@ -48,6 +55,9 @@ class Sqlite extends Destination {
 
     $build_command = null;
     foreach ($records as $row_index => $row){
+
+      if($row_index === 0 ) {continue;}
+
       foreach ($row as $rkey => $cell) {
         //skip columns which you do not want to be in update process.
         if (in_array($rkey, $this->config->skip_columns) || empty($rkey) || $rkey==$this->config->keyfield){ continue; }
@@ -69,7 +79,8 @@ class Sqlite extends Destination {
       $build_command .= 'UPDATE ' . $this->config->table_name. ' SET '.implode(", ", $update_columns).
                        ' WHERE '. $this->config->keyfield."='".$row['username']."'; ";
       if(isset($this->config->debug) && $this->config->debug == 'yes'){
-        echo $build_command; exit;
+        echo $build_command;
+        return true;
       }
       $update_columns= array();
     }
@@ -84,6 +95,36 @@ class Sqlite extends Destination {
     }
 
     return $output;
+  }
+
+  public function create_table($columns){
+    $dbObject = new \SQLite3($this->config->workarea_root.date('Y/m/d').DIRECTORY_SEPARATOR.
+      $this->config->workarea.DIRECTORY_SEPARATOR.$this->config->sqlite_db_file);
+    $build_command = null;
+
+    foreach ($columns as $column_index => $column_name) {
+      $c_name = implode('_', explode(' ', strtolower($column_name)));
+      $create_table_fields[] = $c_name . ' TEXT';
+    }
+    $create_table_fields[] = 'record_processed TEXT DEFAULT N';
+    $create_table_fields[] = 'updated_on DATETIME';
+    $create_table_fields[] = 'created_on DATETIME';
+
+
+
+    $create_table_fields_string = implode(', ', $create_table_fields);
+    $create_table_statement = 'CREATE TABLE if not exists ' . $this->config->table_name . ' (' . $create_table_fields_string . ');';
+
+    if(isset($this->config->debug) && $this->config->debug == 'yes'){
+      echo $create_table_statement;
+      return true;
+    }
+
+    if($dbObject->exec($create_table_statement)){
+      $create_index = "CREATE INDEX {$this->config->keyfield}_index ON {$this->config->table_name} ({$this->config->keyfield});";
+      return $dbObject->exec($create_index);
+    }
+    return false;
   }
 
 }

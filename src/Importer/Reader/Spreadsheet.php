@@ -32,10 +32,6 @@ class Spreadsheet extends Source {
       for($i = 0;  $i<$this->config->sheets_to_process; $i++) {
         $spreadsheet->ChangeSheet($i);
         foreach ($spreadsheet as $key => $Row) {
-          if ($key === 1) {
-            continue;
-          }
-
 
           // verify if there are specific columns has been provided to process.
           if(isset($this->config->columns) && sizeof($this->config->columns)){
@@ -57,7 +53,7 @@ class Spreadsheet extends Source {
             }
           }
 
-          if(!$this->filter($this->config->filter, $cell_value)){
+          if(isset($this->config->filter) && !$this->filter($this->config->filter, $cell_value)){
             continue;
           }
           $this->_rows[] = $cell_value ;

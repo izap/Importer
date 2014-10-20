@@ -24,6 +24,10 @@ if(isset($config->read_only) && $config->read_only == "yes"){
 $writer = '\\Importer\\Writer\\'.ucfirst($config->writer['driver']);
 $writer_object = new $writer($config);
 
+if($config->create_table == 'yes'){
+  $writer_object->create_table($rows[0]);
+}
+
 if($config->insert == "yes"){
   $writer_object->insert($rows);
 }elseif($config->update == "yes"){
