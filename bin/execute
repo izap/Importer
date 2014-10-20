@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php
+if (PHP_SAPI != 'cli') { exit; }
+ini_set('memory_limit', '4000M');
+//error_reporting('E_ALL & ~E_NOTICE');
+
+date_default_timezone_set('Asia/Kolkata');
+
+
+require __DIR__ . "/../vendor/autoload.php";
+
+$options = getopt("d:h:");
+
+$config = new \Importer\Config(json_decode($options['d'], true));
+$reader = '\\Importer\\Reader\\'.ucfirst($config->reader['driver']);
+
+$reader_object = new $reader($config);
+$rows = $reader_object->records();
+
+if(isset($config->read_only) && $config->read_only == "yes"){
+  print_r($rows);
+  exit;
+}
+$writer = '\\Importer\\Writer\\'.ucfirst($config->writer['driver']);
+$writer_object = new $writer($config);
+
+if($config->create_table == 'yes'){
+  $writer_object->create_table($rows[0]);
+}
+
+if($config->insert == "yes"){
+  $writer_object->insert($rows);
+}elseif($config->update == "yes"){
+  $writer_object->update($rows);
+}
+exit;

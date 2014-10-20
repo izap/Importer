@@ -1,0 +1,12 @@
+# Operating System
+*.swp
+.DS_Store
+
+# IDEs
+/.idea/
+
+# Composer
+/composer.phar
+/composer.lock
+/vendor/
+/workarea/
