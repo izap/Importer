@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#example: <cmd> <sqlite.db> <table_name> success 'username="test"'
+sqlite_db_path=$1
+table_name=$2
+output=$3
+query=$4
+
+/usr/bin/sqlite3 $sqlite_db_path <<!
+.headers on
+.mode csv
+.output $table_name-$output.csv
+select * from $table_name where $query;
+!
