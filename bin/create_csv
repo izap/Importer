@@ -5,10 +5,10 @@ sqlite_db_path=$1
 table_name=$2
 output=$3
 query=$4
-
+DATE=$(date +"%Y-%m-%d")
 /usr/bin/sqlite3 $sqlite_db_path <<!
 .headers on
 .mode csv
-.output $table_name-$output.csv
+.output $table_name-$DATE-$output.csv
 select * from $table_name where $query;
 !

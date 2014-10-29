@@ -72,6 +72,7 @@ class Sqlite extends Destination {
       }
 
       $update_columns[] = 'updated_on=datetime("now")';
+      $update_columns[] = 'record_processed="A"';
 
       //todo: put exception keyfield is important
 
@@ -121,8 +122,20 @@ class Sqlite extends Destination {
     }
 
     if($dbObject->exec($create_table_statement)){
-      $create_index = "CREATE INDEX {$this->config->keyfield}_index ON {$this->config->table_name} ({$this->config->keyfield});";
-      return $dbObject->exec($create_index);
+      if(isset($this->config->index_fields)){
+        // Create index of desired fields.
+        if(is_array($this->config->index_fields) && count($this->config->index_fields)){
+          $create_index = '';
+          foreach($this->config->index_fields as $indexing_field){
+            $create_index .= "CREATE INDEX index_{$this->config->table_name}_{$indexing_field}
+                            ON {$this->config->table_name} ({$indexing_field});";
+
+          }
+        }
+        return $dbObject->exec($create_index);
+      }else{
+        return true;
+      }
     }
     return false;
   }
