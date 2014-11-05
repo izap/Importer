@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "php": ">=5.4.30",
+        "php": ">=5.4.0",
         "ext-xdebug": ">=2.2.5",
         "ext-curl": "*",
         "ext-sqlite3": "*",
