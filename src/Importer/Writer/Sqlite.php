@@ -29,7 +29,8 @@ class Sqlite extends Destination {
         if (in_array($rkey, $this->config->skip_columns) || empty($rkey)){ continue; }
         $update_columns[] = "'".trim($this->dbObject->escapeString($cell))."'";
         if($header){
-          $header_array[]=$rkey;
+          $c_name = implode('_', explode(' ', strtolower($rkey)));
+          $header_array[]=$c_name;
         }
       }
       $header = false;
@@ -82,18 +83,18 @@ class Sqlite extends Destination {
       foreach ($row as $rkey => $cell) {
         //skip columns which you do not want to be in update process.
         if (in_array($rkey, $this->config->skip_columns) || empty($rkey) || $rkey==$this->config->keyfield){ continue; }
-        $update_columns[] = $rkey."='".$this->dbObject->escapeString($cell)."'";
+        $c_name = implode('_', explode(' ', strtolower($rkey)));
+        $update_columns[] = $c_name."='".$this->dbObject->escapeString($cell)."'";
       }
 
       //todo: process metadata columns.
-      if(isset($this->config->metadata)) {
+      if(isset($this->config->metadata) && is_array($this->config->metadata)) {
         foreach ($this->config->metadata as $mvalue) {
           $update_columns[] = $mvalue;
         }
       }
 
       $update_columns[] = 'updated_on=datetime("now")';
-      $update_columns[] = 'record_processed="A"';
 
       //todo: put exception keyfield is important
 
