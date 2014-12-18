@@ -92,6 +92,9 @@ class Sqlite extends Destination {
    * @return bool return exec result.
    */
 
+  /*
+   * todo: fix bulk update in case of update table command
+   */
   public function update(&$records){
     $build_command = null;
     foreach ($records as $row_index => $row){
