@@ -29,7 +29,7 @@ class Sqlite extends Destination {
         if (in_array($rkey, $this->config->skip_columns) || empty($rkey)){ continue; }
         $update_columns[] = "'".trim($this->dbObject->escapeString($cell))."'";
         if($header){
-          $c_name = implode('_', explode(' ', strtolower($rkey)));
+          $c_name = implode('_', explode(' ', strtolower(trim($rkey))));
           $header_array[]=$c_name;
         }
       }
@@ -100,7 +100,7 @@ class Sqlite extends Destination {
       foreach ($row as $rkey => $cell) {
         //skip columns which you do not want to be in update process.
         if (in_array($rkey, $this->config->skip_columns) || empty($rkey) || $rkey==$this->config->keyfield){ continue; }
-        $c_name = implode('_', explode(' ', strtolower($rkey)));
+        $c_name = implode('_', explode(' ', strtolower(trim($rkey))));
         $update_columns[] = $c_name."='".$this->dbObject->escapeString($cell)."'";
       }
 
@@ -142,7 +142,7 @@ class Sqlite extends Destination {
   public function create_table($columns){
     $build_command = null;
     foreach ($columns as $column_index => $column_name) {
-      $c_name = implode('_', explode(' ', strtolower($column_name)));
+      $c_name = implode('_', explode(' ', strtolower(trim($column_name))));
       $create_table_fields[] = $c_name . ' TEXT';
     }
     $create_table_fields[] = 'record_processed TEXT DEFAULT N';
