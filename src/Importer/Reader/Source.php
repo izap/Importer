@@ -12,7 +12,5 @@ abstract class Source {
     $this->config = $config;
   }
 
-  abstract public function header();
   abstract public function records();
-
 }

@@ -1,14 +1,10 @@
 #!/usr/bin/env php
 <?php
 if (PHP_SAPI != 'cli') { exit; }
-ini_set('memory_limit', '4000M');
-//error_reporting('E_ALL & ~E_NOTICE');
-
+ini_set('memory_limit', '-1');
+error_reporting('E_ALL & ~E_NOTICE');
 date_default_timezone_set('Asia/Kolkata');
-
-
 require __DIR__ . "/../vendor/autoload.php";
-
 $options = getopt("d:h:");
 $config = new \Importer\Config(json_decode($options['d'], true));
 if($config->setup == 'yes'){
@@ -39,5 +35,7 @@ if($config->insert == "yes"){
   $writer_object->insert($rows);
 }elseif($config->update == "yes"){
   $writer_object->update($rows);
+}elseif($config->create_index == 'yes'){
+  $writer_object->create_index();
 }
 exit;

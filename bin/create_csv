@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#example: <cmd> <sqlite.db>  'select * from table where username="test"' success
+sqlite_db_path=$1
+query=$2
+output=$3
+DATE=$(date +"%Y-%m-%d")
+/usr/bin/sqlite3 $sqlite_db_path <<!
+.headers on
+.mode csv
+.output $output-$DATE.csv
+$query;
+!
