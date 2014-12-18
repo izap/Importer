@@ -2,6 +2,7 @@
 <?php
 if (PHP_SAPI != 'cli') { exit; }
 ini_set('memory_limit', '-1');
+error_reporting(E_ALL & ~E_NOTICE);
 date_default_timezone_set('Asia/Kolkata');
 require __DIR__ . "/../vendor/autoload.php";
 $options = getopt("d:h:");
@@ -12,6 +13,12 @@ if($config->setup == 'yes'){
   exit;
 }else {
   $config->process();
+}
+
+if($config->split == 'yes'){
+  $splitter_object = new \Importer\Splitter($config);
+  $splitter_object->split();
+  exit(0);
 }
 
 $reader = '\\Importer\\Reader\\'.ucfirst($config->reader['driver']);
@@ -37,4 +44,4 @@ if($config->insert == "yes"){
 }elseif($config->create_index == 'yes'){
   $writer_object->create_index();
 }
-exit;
+exit(0);
