@@ -20,7 +20,7 @@ class Sqlite extends Destination {
     //todo: put exception for records empty and header empty;
     $insert_command = 'INSERT INTO ' . $this->config->table_name. '(%s) VALUES (%s); ' ;
     $build_command = null;
-
+    $output = array();
     $header = true;
     foreach ($records as $row_index => $row){
       if($row_index === 0 ) {continue;}
@@ -36,15 +36,32 @@ class Sqlite extends Destination {
       $header = false;
 
       //todo: put exception keyfield is important
-      $build_command .= sprintf($insert_command, implode(", ", $header_array) ,  implode(", ", $update_columns));
 
-      if(isset($this->config->debug) && $this->config->debug == 'yes'){
+      if(isset($this->config->bulk) && $this->config->bulk == "yes") {
+        $build_command .= sprintf($insert_command, implode(", ", $header_array) ,  implode(", ", $update_columns));
+      }else {
+        $build_command = sprintf($insert_command, implode(", ", $header_array) ,  implode(", ", $update_columns));
+      }
+
+      if(!isset($this->config->bulk) or $this->config->bulk != 'yes'){
+        if(isset($this->config->debug) && $this->config->debug == 'yes') {
+          echo $build_command;
+          return true;
+        }
+        $output[]=$this->dbObject->exec($build_command);
+      }
+
+      $update_columns= array();
+    }
+
+    if(isset($this->config->bulk) && $this->config->bulk == 'yes'){
+      if(isset($this->config->debug) && $this->config->debug == 'yes') {
         echo $build_command;
         return true;
       }
-      $update_columns= array();
+      $output[] = $this->dbObject->exec($build_command);
     }
-    return $this->dbObject->exec($build_command);
+    return $output;
   }
 
   /**
