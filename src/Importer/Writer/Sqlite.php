@@ -21,6 +21,7 @@ class Sqlite extends Destination {
     $insert_command = 'INSERT INTO ' . $this->config->table_name. '(%s) VALUES (%s); ' ;
     $build_command = null;
     $output = array();
+    $errors = null;
     $header = true;
     foreach ($records as $row_index => $row){
       if($row_index === 0 ) {continue;}
@@ -49,6 +50,17 @@ class Sqlite extends Destination {
           return true;
         }
         $output[]=$this->dbObject->exec($build_command);
+        if($this->dbObject->lastErrorCode() > 0)
+        {
+          try
+          {
+            throw new Error(implode(",", $update_columns));
+          }
+          catch(Error $e)
+          {
+            file_put_contents("error.log.csv",$e->getMessage()."\n",FILE_APPEND);
+          }
+        }
       }
 
       $update_columns= array();
@@ -61,6 +73,7 @@ class Sqlite extends Destination {
       }
       $output[] = $this->dbObject->exec($build_command);
     }
+    unset($build_command, $errors);
     return $output;
   }
 
@@ -114,7 +127,7 @@ class Sqlite extends Destination {
         }
       }
 
-      $update_columns[] = 'updated_on=datetime("now")';
+      $update_columns[] = 'updated_on=CURRENT_TIMESTAMP';
 
       //todo: put exception keyfield is important
 
@@ -150,8 +163,8 @@ class Sqlite extends Destination {
     }
     $create_table_fields[] = 'record_processed TEXT DEFAULT N';
     $create_table_fields[] = 'image_processed TEXT DEFAULT N';
-    $create_table_fields[] = 'updated_on DATETIME';
-    $create_table_fields[] = 'created_on DATETIME';
+    $create_table_fields[] = 'updated_on TIMESTAMP';
+    $create_table_fields[] = 'created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL';
 
     $create_table_fields_string = implode(', ', $create_table_fields);
     $create_table_statement = 'CREATE TABLE if not exists ' . $this->config->table_name . ' (' . $create_table_fields_string . ');';
@@ -162,5 +175,6 @@ class Sqlite extends Destination {
     }
     return $this->dbObject->exec($create_table_statement);
   }
+
 
 }
