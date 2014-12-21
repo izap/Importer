@@ -15,6 +15,7 @@ if($config->setup == 'yes'){
   $config->process();
 }
 
+// to split any csv file
 if($config->split == 'yes'){
   $splitter_object = new \Importer\Splitter($config);
   $splitter_object->split();
