@@ -69,8 +69,8 @@ while ($row = $query_handler->fetchArray(SQLITE3_ASSOC)) {
     $generation_path = $config->destination_root.DIRECTORY_SEPARATOR.$row['username'].DIRECTORY_SEPARATOR;
     $tmp_file = $generation_path.'original_content';
 
-    if(!is_dir($generation_path.$row['username'])) {
-      mkdir($generation_path, 0700, true);
+    if(!is_dir($generation_path)) {
+      @mkdir($generation_path, 0700, true);
     }
 
     if(file_put_contents($generation_path.'original_content',$original_content)){
