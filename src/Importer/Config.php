@@ -10,6 +10,8 @@ class Config {
     $this->_attributes = $runtime_config;
     $this->workarea_root = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.
       'workarea'.DIRECTORY_SEPARATOR;
+    $this->execution_path = $this->workarea_root.date('Y/m/d').DIRECTORY_SEPARATOR.
+      $this->workarea.DIRECTORY_SEPARATOR;
   }
 
   public function __get($property) {
@@ -55,8 +57,28 @@ class Config {
     "sqlite_db_file": "<sqlite_db_file_name>"
 }
 ';
+      $local_processor = '<?php
+
+class Processor implements \Importer\Processor\Interphase {
+  private $config = array();
+  public function __construct(&$config) {
+    $this->config = $config;
+  }
+  public function run($attribute_value) {
+    //put your code
+
+    //end of your custom code
+    // process attribute value and return
+    if($this->config->debug == "yes") {
+      echo $attribute_value;
+      exit(0);
+    }
+    return $attribute_value;
+  }
+} ';
       if(!file_exists($local_file_path . 'config.json')) {
         file_put_contents($local_file_path . 'config.json', $local_config_data);
+        file_put_contents($local_file_path. 'Processor.php',$local_processor);
       }
     }
     return $local_file_path . 'config.json';

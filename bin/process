@@ -1,0 +1,101 @@
+#!/usr/bin/env php
+<?php
+if (PHP_SAPI != 'cli') { exit; }
+ini_set('memory_limit', '-1');
+error_reporting(E_ALL & ~E_NOTICE);
+date_default_timezone_set('Asia/Kolkata');
+require __DIR__ . "/../vendor/autoload.php";
+$options = getopt("d:h:");
+$config = new \Importer\Config(json_decode($options['d'], true));
+$config->process();
+
+//include workarea php file
+
+
+/*
+{
+    "source_file": "Data_InternationalGenome_v4.csv",
+    "keyfield": "username",
+    "sheets_to_process": "1",
+    "table_name": "Data_InternationalGenome_v4",
+    "sqlite_db_file": "Data_InternationalGenome_v4.sqlite.db",
+    "limit":[0,1],
+    "select_query":"SELECT username, map_image_file_name as image_path from %s WHERE country_2letter_iso = 'AO' order by username limit %s, %s;",
+    "update_query":"UPDATE %s set image_processed = '%s' where username = '%s';",
+    "sizes":[
+        {"width":"32","height":"32","square":"yes","name":"small"},
+        {"width":"50","height":"50","square":"yes","name":"medium"},
+        {"width":"63","height":"63","square":"yes","name":"feed"},
+        {"width":"200","height":"300","square":"no","name":"large"},
+        {"width":"600","height":"400","square":"no","name":"Xlarge"}
+    ],
+    "source_root":"/Users/tarunjangra/etc/download",
+    "destination_root":"",
+    "process_attribute":{"name":"image_path","debug":"yes"}
+}
+ */
+
+$imageObject = new \Importer\Processor\Image($config);
+
+$update_query_log = null;
+
+$dbObject =  new \SQLite3($config->execution_path.$config->sqlite_db_file);
+
+$query_handler = $dbObject->query(sprintf($config->select_query,$config->table_name,$config->limit[0],$config->limit[1]));
+
+if(!is_dir($config->destination_root)) {
+mkdir($config->destination_root,0700, true);
+}
+
+while ($row = $query_handler->fetchArray(SQLITE3_ASSOC)) {
+
+  if($config->debug=="yes") {
+    $rows[] = $row;
+    continue;
+  }
+
+  if(file_exists($config->execution_path.'Processor.php') && include_once($config->execution_path.'Processor.php')) {
+    $processorObject = new \Processor($config);
+    $row[$config->process_attribute['name']] = $processorObject->run($row[$config->process_attribute['name']]);
+  }
+
+  if(empty($row['image_path'])) {
+    $update_query_log .= sprintf($config->update_query, $config->table_name,  'Error: no url', $row['username']);
+    continue;
+  }
+   // get file from the provided path.
+  if($original_content = @file_get_contents($row['image_path'])){
+
+    $generation_path = $config->destination_root.DIRECTORY_SEPARATOR.$row['username'].DIRECTORY_SEPARATOR;
+    $tmp_file = $generation_path.'original_content';
+
+    if(!is_dir($generation_path.$row['username'])) {
+      mkdir($generation_path, 0700, true);
+    }
+
+    if(file_put_contents($generation_path.'original_content',$original_content)){
+      $extension = '.jpg';
+      foreach($config->sizes as $image_config){
+        if($thumb = $imageObject->resize($generation_path.'original_content', $image_config['width'], $image_config['height'],
+          ($image_config['square'] == 'yes')?true:false)) {
+          file_put_contents($generation_path . $image_config['name'] . $extension, $thumb);
+        }
+      }
+      $update_query_log .= sprintf($config->update_query, $config->table_name, 'Y', $row['username']);
+    }
+
+  }else {
+    // if image path is remote valid url, then get header.
+    if(filter_var($row['image_path'], FILTER_VALIDATE_URL)) {
+      $error = 'Error: '.implode(',',get_headers($row['image_path']));
+    }elseif(!file_exists($row['image_path'])) {
+      $error = 'Error: image not available at '.$row['image_path'].'.';
+    }
+    $update_query_log .= sprintf($config->update_query, $config->table_name,  $error, $row['username']);
+    continue;
+  }
+
+}
+
+file_put_contents($config->destination_root.$config->limit[0].'-'.$config->limit[1].'.sql',$update_query_log);
+exit(0);
