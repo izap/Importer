@@ -60,7 +60,7 @@ while ($row = $query_handler->fetchArray(SQLITE3_ASSOC)) {
   }
 
   if(empty($row['image_path'])) {
-    $update_query_log .= sprintf($config->update_query, $config->table_name,  'Error: no url', $row['username']);
+    $update_query_log .= sprintf($config->update_query. "\n", $config->table_name,  'Error: no url', $row['username']);
     continue;
   }
    // get file from the provided path.
@@ -81,7 +81,7 @@ while ($row = $query_handler->fetchArray(SQLITE3_ASSOC)) {
           file_put_contents($generation_path . $image_config['name'] . $extension, $thumb);
         }
       }
-      $update_query_log .= sprintf($config->update_query, $config->table_name, 'Y', $row['username']);
+      $update_query_log .= sprintf($config->update_query. "\n", $config->table_name, 'Y', $row['username']);
     }
 
   }else {
@@ -91,7 +91,7 @@ while ($row = $query_handler->fetchArray(SQLITE3_ASSOC)) {
     }elseif(!file_exists($row['image_path'])) {
       $error = 'Error: image not available at '.$row['image_path'].'.';
     }
-    $update_query_log .= sprintf($config->update_query, $config->table_name,  $error, $row['username']);
+    $update_query_log .= sprintf($config->update_query."\n", $config->table_name,  $error, $row['username']);
     continue;
   }
 
