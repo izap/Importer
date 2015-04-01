@@ -18,11 +18,11 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "ext-xdebug": ">=2.2.5",
         "ext-curl": "*",
         "ext-sqlite3": "*",
         "izap/spreadsheet-reader": "dev-master",
-        "fabpot/goutte": "~2.0.2"
+        "fabpot/goutte": "~2.0.2",
+        "ext-pdo_mysql": "* 1.0.2"
     },
     "require-dev":{
       "phpunit/phpunit": "4.1.*"
