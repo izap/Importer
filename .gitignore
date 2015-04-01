@@ -11,3 +11,5 @@
 /composer.lock
 /vendor/
 /workarea/
+
+/src/Importer/Config.php
